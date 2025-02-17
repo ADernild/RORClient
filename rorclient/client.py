@@ -52,6 +52,10 @@ class RORClient(BaseModel):
         """Ensures the HTTPX client is closed when exiting context."""
         self._client.close()
 
+    def close(self):
+        """Closes the HTTPX client."""
+        self._client.close()
+
     @backoff.on_exception(
         backoff.expo,
         (httpx.RequestError, httpx.HTTPStatusError),
@@ -118,7 +122,3 @@ class RORClient(BaseModel):
                 institutions.append(institution)
 
         return institutions
-
-    def close(self):
-        """Closes the HTTPX client."""
-        self._client.close()

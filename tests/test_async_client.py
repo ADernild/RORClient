@@ -12,8 +12,9 @@ Date: 2025-02-17
 
 import asyncio
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
+import httpx
 from pydantic import HttpUrl
 
 from rorclient.async_client import AsyncRORClient
@@ -21,7 +22,7 @@ from rorclient.models.institution import Institution
 
 
 class TestAsyncRORClient(unittest.TestCase):
-    @patch("httpx.AsyncClient.get")
+    @patch.object(httpx.AsyncClient, "get", new_callable=AsyncMock)
     def test_get_institution(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -112,7 +113,7 @@ class TestAsyncRORClient(unittest.TestCase):
         self.assertEqual(institution.id, HttpUrl("https://ror.org/03yrrjy16"))
         self.assertEqual(institution.status, "active")
 
-    @patch("httpx.AsyncClient.get")
+    @patch.object(httpx.AsyncClient, "get", new_callable=AsyncMock)
     def test_get_institution_not_found(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 404
@@ -123,7 +124,7 @@ class TestAsyncRORClient(unittest.TestCase):
 
         self.assertIsNone(institution)
 
-    @patch("httpx.AsyncClient.get")
+    @patch.object(httpx.AsyncClient, "get", new_callable=AsyncMock)
     def test_get_multiple_institutions(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200

@@ -16,7 +16,7 @@ from typing import ClassVar, List, Optional
 
 import backoff
 import httpx
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
 
 from .models.institution import Institution
 
@@ -32,6 +32,30 @@ class AsyncRORClient(BaseModel):
     """
 
     base_url: ClassVar = "https://api.ror.org/v2/"
+    _client: httpx.AsyncClient = PrivateAttr()
+
+    def __init__(self) -> None:
+        """Initializes the HTTPX client for connection reuse."""
+        super().__init__()
+        self._client = httpx.AsyncClient(
+            base_url=self.base_url,
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "RORClient https://github.com/ADernild/RORClient",
+            },
+        )
+
+    async def __aenter__(self):
+        """Allows the client to be used as an async context manager."""
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Ensures the HTTPX async client is closed when exiting context."""
+        await self._client.aclose()
+
+    async def close(self):
+        """Closes the HTTPX async client."""
+        await self._client.aclose()
 
     @backoff.on_exception(
         backoff.expo,
@@ -41,35 +65,31 @@ class AsyncRORClient(BaseModel):
             f"Backing off {details.get('wait', 'unknown')} seconds after {details.get('tries', 'unknown')} tries"
         ),
     )
-    async def get_institution(self, id: str) -> Optional[Institution]:
+    async def get_institution(self, ror_id: str) -> Optional[Institution]:
         """
         Fetches a single institution by its ROR ID asynchronously.
 
         Args:
-            id (str): The ROR ID of the institution.
+            ror_id (str): The ROR ID of the institution.
 
         Returns:
             Optional[Institution]: An Institution object if found, otherwise None.
 
         Raises:
-            ValueError: If the ID is None or the response status code is not 200 or 404.
+            ValueError: If the response status code is unexpected.
         """
-        if id is None:
-            raise ValueError("id was None")
-        url = f"{self.base_url}organizations/{id}"
-        logger.debug(f"Fetching {url}")
-        headers = {
-            "Accept": "application/json",
-            "User-Agent": "RORClient https://github.com/ADernild/RORClient",
-        }
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=headers)
-            if response.status_code == 200:
-                return Institution(**response.json())
-            elif response.status_code == 404:
-                return None
-            else:
-                raise ValueError(f"Got {response.status_code} from ROR")
+        if not ror_id:
+            raise ValueError("ror_id cannot be None or empty")
+
+        logger.debug(f"Fetching institution with ROR ID: {ror_id}")
+        response = await self._client.get(f"organizations/{ror_id}")
+
+        if response.status_code == 200:
+            return Institution(**response.json())
+        elif response.status_code == 404:
+            return None
+        else:
+            raise ValueError(f"Unexpected response: {response.status_code}")
 
     @backoff.on_exception(
         backoff.expo,
@@ -79,12 +99,12 @@ class AsyncRORClient(BaseModel):
             f"Backing off {details.get('wait', 'unknown')} seconds after {details.get('tries', 'unknown')} tries"
         ),
     )
-    async def get_multiple_institutions(self, ids: List[str]) -> List[Institution]:
+    async def get_multiple_institutions(self, ror_ids: List[str]) -> List[Institution]:
         """
         Fetches multiple institutions by their ROR IDs asynchronously.
 
         Args:
-            ids (List[str]): A list of ROR ID strings.
+            ror_ids (List[str]): A list of ROR ID strings.
 
         Returns:
             List[Institution]: A list of Institution objects.
@@ -92,43 +112,13 @@ class AsyncRORClient(BaseModel):
         Raises:
             ValueError: If the IDs list is empty.
         """
-        if len(ids) == 0:
-            raise ValueError("ids cannot be empty")
-        headers = {
-            "Accept": "application/json",
-            "User-Agent": "RORClient https://github.com/ADernild/RORClient",
-        }
-        institutions = []
-        async with httpx.AsyncClient() as client:
-            tasks = [self._fetch_institution(client, id, headers) for id in ids]
-            results = await asyncio.gather(*tasks)
-            for result in results:
-                if result:
-                    institutions.append(result)
-        return institutions
+        if not ror_ids:
+            raise ValueError("ror_ids cannot be empty")
 
-    async def _fetch_institution(
-        self, client: httpx.AsyncClient, id: str, headers: dict
-    ) -> Optional[Institution]:
-        """
-        Helper function to fetch a single institution asynchronously.
+        logger.debug(f"Fetching multiple institutions: {ror_ids}")
 
-        Args:
-            client (httpx.AsyncClient): The HTTP client.
-            id (str): The ROR ID of the institution.
-            headers (dict): The request headers.
+        # Reuse get_institution() instead of a helper function
+        tasks = [self.get_institution(ror_id) for ror_id in ror_ids]
+        results = await asyncio.gather(*tasks)
 
-        Returns:
-            Optional[Institution]: An Institution object if found, otherwise None.
-
-        Raises:
-            ValueError: If the response status code is not 200 or 404.
-        """
-        url = f"{self.base_url}organizations/{id}"
-        response = await client.get(url, headers=headers)
-        if response.status_code == 200:
-            return Institution(**response.json())
-        elif response.status_code == 404:
-            return None
-        else:
-            raise ValueError(f"Got {response.status_code} from ROR")
+        return [result for result in results if result is not None]
