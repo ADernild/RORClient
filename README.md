@@ -34,15 +34,16 @@ pip install -r requirements.txt
 ```python
 from rorclient import RORClient
 
-client = RORClient()
+with RORClient() as client:
+    # Get institution details
+    org = client.get_institution("03yrm5c26")
+    if org:
+        print(f"Found institution: {org.name}")
 
-# get institution details
-org = client.get_institution("03yrm5c26")
-if org:
-    print(f"Found institution: {org.name}")
+    # Fetch multiple institutions
+    multiple_orgs = client.get_multiple_institutions(["03yrm5c26", "029z82x56"])
+    print(f"Fetched {len(multiple_orgs)} institutions")
 
-multiple_orgs = client.get_multiple_institutions(["03yrm5c26", "029z82x56"])
-print(f"Fetched {len(multiple_orgs)} institutions")
 ```
 
 ### Asynchronous Client
@@ -51,20 +52,18 @@ import asyncio
 from rorclient import AsyncRORClient
 
 async def main():
-    client = AsyncRORClient()
+    async with AsyncRORClient() as client:
+        # Get institution details
+        org = await client.get_institution("03yrm5c26")
+        if org:
+            print(f"Found institution: {org.name}")
 
-    # Get institution details
-    org = await client.get_institution("03yrm5c26")
-    if org:
-        print(f"Found institution: {org.name}")
-
-    # Fetch multiple institutions
-    multiple_orgs = await client.get_multiple_institutions(["03yrm5c26", "029z82x56"])
-    print(f"Fetched {len(multiple_orgs)} institutions")
-
-    await client.close()  # Ensure the client session is closed
+        # Fetch multiple institutions
+        multiple_orgs = await client.get_multiple_institutions(["03yrm5c26", "029z82x56"])
+        print(f"Fetched {len(multiple_orgs)} institutions")
 
 asyncio.run(main())
+
 ```
 
 ---
