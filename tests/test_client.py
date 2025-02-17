@@ -13,6 +13,7 @@ Date: 2025-02-17
 import unittest
 from unittest.mock import MagicMock, patch
 
+import httpx
 from pydantic import HttpUrl
 
 from rorclient.client import RORClient
@@ -20,7 +21,7 @@ from rorclient.models.institution import Institution
 
 
 class TestRORClient(unittest.TestCase):
-    @patch("httpx.get")
+    @patch.object(httpx.Client, "get")
     def test_get_institution(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -111,7 +112,7 @@ class TestRORClient(unittest.TestCase):
         self.assertEqual(institution.id, HttpUrl("https://ror.org/03yrrjy16"))
         self.assertEqual(institution.status, "active")
 
-    @patch("httpx.get")
+    @patch.object(httpx.Client, "get")
     def test_get_institution_not_found(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 404
@@ -122,7 +123,7 @@ class TestRORClient(unittest.TestCase):
 
         self.assertIsNone(institution)
 
-    @patch("httpx.get")
+    @patch.object(httpx.Client, "get")
     def test_get_multiple_institutions(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
