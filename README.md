@@ -1,5 +1,14 @@
 # RORClient
 
+
+[![Become a sponsor to ADernild](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/ADernild "Become a sponsor to ADernild")
+[![GitHub](https://img.shields.io/github/followers/adernild?label=follow&style=social)](https://github.com/ADernild "Follow ADernild on GitHub")
+[![LinkedIn](https://img.shields.io/badge/-LinkedInd-blue?style=flat-round&logo=Linkedin&logoColor=white&link=https://linkedin.com/in/alexander-dernild)](https://linkedin.com/in/alexander-dernild "Connect with me on LinkedIn")
+[![Akami Cloud Computing](https://img.shields.io/badge/Cloud_Hosting-s?style=flat-round&logo=akamai&logoColor=%230096D6&labelColor=white&color=white)](https://www.linode.com/lp/refer/?r=a1236b8e74912ccb090628165fa6bf21cb52968f "Get a $100 credit on Linode Cloud")
+[![Pydantic v2](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pydantic/pydantic/main/docs/badge/v2.json)](https://pydantic.dev)
+[![httpx](https://img.shields.io/badge/httpx-%5E0.28.1-orange)](https://www.python-httpx.org/)
+[![Python 3.13](https://img.shields.io/badge/python)](https://www.python.org/downloads/)
+
 🚀 **A Python client for interacting with the ROR API.**
 RORClient provides a simple, efficient way to query the [Research Organization Registry (ROR)](https://ror.org) API using **HTTPX** and **Pydantic**.
 
