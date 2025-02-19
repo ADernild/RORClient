@@ -24,7 +24,7 @@ from rorclient.models.institution import Institution
 class TestAsyncRORClient(unittest.TestCase):
     @patch.object(httpx.AsyncClient, "get", new_callable=AsyncMock)
     def test_get_institution(self, mock_get):
-        mock_response = MagicMock()
+        mock_response = AsyncMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "admin": {
@@ -115,7 +115,7 @@ class TestAsyncRORClient(unittest.TestCase):
 
     @patch.object(httpx.AsyncClient, "get", new_callable=AsyncMock)
     def test_get_institution_not_found(self, mock_get):
-        mock_response = MagicMock()
+        mock_response = AsyncMock()
         mock_response.status_code = 404
         mock_get.return_value = mock_response
 
@@ -126,7 +126,7 @@ class TestAsyncRORClient(unittest.TestCase):
 
     @patch.object(httpx.AsyncClient, "get", new_callable=AsyncMock)
     def test_get_multiple_institutions(self, mock_get):
-        mock_response = MagicMock()
+        mock_response = AsyncMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "admin": {
