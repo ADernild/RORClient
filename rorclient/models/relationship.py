@@ -10,6 +10,8 @@ Description: Pydantic models for relationships in the ROR API.
 Date: 2025-02-17
 """
 
+from typing import Optional
+
 from pydantic import BaseModel, HttpUrl
 
 
@@ -26,6 +28,7 @@ class Relationship(BaseModel):
     label: str
     type: str
     id: HttpUrl
+    nested_institution: Optional["Institution"] = None  # type: ignore
 
     @property
     def id_without_prefix(self) -> str:
