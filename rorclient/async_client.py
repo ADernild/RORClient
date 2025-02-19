@@ -19,6 +19,7 @@ import httpx
 from pydantic import BaseModel, PrivateAttr
 
 from .models.institution import Institution
+from .utils import retry_with_backoff
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,8 @@ class AsyncRORClient(BaseModel):
     """
 
     base_url: ClassVar = "https://api.ror.org/v2/"
+    prefetch_relationships: bool = False
+    max_depth: int = 2
     _client: httpx.AsyncClient = PrivateAttr()
 
     def __init__(self) -> None:
@@ -57,15 +60,10 @@ class AsyncRORClient(BaseModel):
         """Closes the HTTPX async client."""
         await self._client.aclose()
 
-    @backoff.on_exception(
-        backoff.expo,
-        (httpx.RequestError, httpx.HTTPStatusError),
-        max_time=60,
-        on_backoff=lambda details: logger.warning(
-            f"Backing off {details.get('wait', 'unknown')} seconds after {details.get('tries', 'unknown')} tries"
-        ),
-    )
-    async def get_institution(self, ror_id: str) -> Optional[Institution]:
+    @retry_with_backoff(max_time=60)
+    async def get_institution(
+        self, ror_id: str, depth: int = 0
+    ) -> Optional[Institution]:
         """
         Fetches a single institution by its ROR ID asynchronously.
 
@@ -85,20 +83,24 @@ class AsyncRORClient(BaseModel):
         response = await self._client.get(f"organizations/{ror_id}")
 
         if response.status_code == 200:
-            return Institution(**response.json())
+            institution_data = await response.json()
+            if self.prefetch_relationships and depth < self.max_depth:
+                institution_data["relationships"] = [
+                    {
+                        **rel,
+                        "nested_institution": self.get_institution(
+                            rel["id"].split("/")[-1], depth + 1
+                        ),
+                    }
+                    for rel in institution_data["relationships"]
+                ]
+            return Institution(**institution_data)
         elif response.status_code == 404:
             return None
         else:
             raise ValueError(f"Unexpected response: {response.status_code}")
 
-    @backoff.on_exception(
-        backoff.expo,
-        (httpx.RequestError, httpx.HTTPStatusError),
-        max_time=60,
-        on_backoff=lambda details: logger.warning(
-            f"Backing off {details.get('wait', 'unknown')} seconds after {details.get('tries', 'unknown')} tries"
-        ),
-    )
+    @retry_with_backoff(max_time=60)
     async def get_multiple_institutions(self, ror_ids: List[str]) -> List[Institution]:
         """
         Fetches multiple institutions by their ROR IDs asynchronously.
