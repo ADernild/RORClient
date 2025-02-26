@@ -28,7 +28,7 @@ class Relationship(BaseModel):
     label: str
     type: str
     id: HttpUrl
-    nested_institution: Optional["Institution"] = None  # type: ignore
+    record: Optional["Institution"] = None  # type: ignore
 
     @property
     def id_without_prefix(self) -> str:

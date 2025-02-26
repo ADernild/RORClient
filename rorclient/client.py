@@ -7,7 +7,7 @@ Author: ADernild
 Email: alex@dernild.dk
 Project: RORClient
 Description: Synchronous client for interacting with the ROR API.
-Date: 2025-02-17
+Date: 2025-02-26
 """
 
 import logging
@@ -17,39 +17,29 @@ import backoff
 import httpx
 from pydantic import BaseModel, PrivateAttr
 
-from .models.institution import Institution
-from .utils import retry_with_backoff
+from rorclient.base import BaseRORClient
+from rorclient.config import config
+from rorclient.models import Institution
+from rorclient.utils import retry_with_backoff
 
 logger = logging.getLogger(__name__)
 
 
-class RORClient(BaseModel):
+class RORClient(BaseRORClient):
     """
-    A client for interacting with the ROR API.
+    A synchronous client for interacting with the Research Organization Registry (ROR) API.
 
-    Attributes:
-        base_url (str): The base URL of the ROR API.
+    The RORClient provides methods to fetch institutions by their ROR ID, fetch multiple institutions,
+    and search for institutions. The client can also prefetch relationships between institutions up to a specified depth.
     """
-
-    base_url: ClassVar = "https://api.ror.org/v2/"
-    prefetch_relationships: bool = False
-    max_depth: int = 2
-    _client: httpx.Client = PrivateAttr()
 
     def __init__(
         self, prefetch_relationships: bool = False, max_depth: int = 2
     ) -> None:
         """Initializes the HTTPX client for connection reuse."""
-        super().__init__()
-        self.prefetch_relationships = prefetch_relationships
-        self.max_depth = max_depth
-        self._client = httpx.Client(
-            base_url=self.base_url,
-            headers={
-                "Accept": "application/json",
-                "User-Agent": "RORClient https://github.com/ADernild/RORClient",
-            },
-        )
+        super().__init__(prefetch_relationships, max_depth)
+        self._client = httpx.Client()
+        self._initialize_client(self._client)
 
     def __enter__(self):
         """Allows the client to be used as a context manager."""
@@ -59,11 +49,7 @@ class RORClient(BaseModel):
         """Ensures the HTTPX client is closed when exiting context."""
         self._client.close()
 
-    def close(self):
-        """Closes the HTTPX client."""
-        self._client.close()
-
-    @retry_with_backoff(max_time=60)
+    @retry_with_backoff()
     def get_institution(self, ror_id: str, depth: int = 0) -> Optional[Institution]:
         """
         Fetches a single institution by its ROR ID.
@@ -78,31 +64,21 @@ class RORClient(BaseModel):
         Raises:
             ValueError: If the ID is None or the response status code is unexpected.
         """
-        if not ror_id:
-            raise ValueError("ror_id cannot be None or empty")
+        self._validate_ror_id(ror_id)
 
         logger.debug(f"Fetching institution with ROR ID: {ror_id}")
         response = self._client.get(f"organizations/{ror_id}")
 
         if response.status_code == 200:
             institution_data = response.json()
-            if self.prefetch_relationships and depth < self.max_depth:
-                institution_data["relationships"] = [
-                    {
-                        **rel,
-                        "nested_institution": self.get_institution(
-                            rel["id"].split("/")[-1], depth + 1
-                        ),
-                    }
-                    for rel in institution_data["relationships"]
-                ]
+            institution_data = self._process_institution_data(institution_data, depth)
             return Institution(**institution_data)
         elif response.status_code == 404:
             return None
         else:
             raise ValueError(f"Got {response.status_code} from ROR")
 
-    @retry_with_backoff(max_time=60)
+    @retry_with_backoff()
     def get_multiple_institutions(self, ror_ids: List[str]) -> List[Institution]:
         """
         Fetches multiple institutions by their ROR IDs.
@@ -116,9 +92,8 @@ class RORClient(BaseModel):
         Raises:
             ValueError: If the IDs list is empty.
         """
-        if not ror_ids:
-            raise ValueError("ror_ids cannot be empty")
 
+        self._validate_ror_ids(ror_ids)
         logger.debug(f"Fetching multiple institutions: {ror_ids}")
         institutions = []
         for ror_id in ror_ids:
@@ -127,3 +102,7 @@ class RORClient(BaseModel):
                 institutions.append(institution)
 
         return institutions
+
+    def close(self):
+        """Closes the HTTPX client."""
+        self._client.close()
