@@ -16,10 +16,12 @@ from functools import wraps
 import backoff
 import httpx
 
+from rorclient.config import config
+
 logger = logging.getLogger(__name__)
 
 
-def retry_with_backoff(max_time=60):
+def retry_with_backoff():
     """
     A custom decorator that wraps backoff.on_exception with logging.
 
@@ -36,7 +38,8 @@ def retry_with_backoff(max_time=60):
             return backoff.on_exception(
                 backoff.expo,
                 (httpx.RequestError, httpx.HTTPStatusError),
-                max_time=max_time,
+                max_tries=config.max_retries,
+                max_time=config.max_retry_time,
                 on_backoff=lambda details: logger.warning(
                     f"Backing off {details.get('wait', 'unknown')} seconds after {details.get('tries', 'unknown')} tries"
                 ),
