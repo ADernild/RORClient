@@ -7,7 +7,6 @@ Author: ADernild
 Email: alex@dernild.dk
 Project: RORClient
 Description: Pydantic models for locations in the ROR API.
-Date: 2025-02-17
 """
 
 from pydantic import BaseModel

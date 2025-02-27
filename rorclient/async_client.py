@@ -7,7 +7,6 @@ Author: ADernild
 Email: alex@dernild.dk
 Project: RORClient
 Description: Asynchronous client for interacting with the ROR API.
-Date: 2025-02-26
 """
 
 import asyncio

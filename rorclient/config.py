@@ -7,7 +7,6 @@ Author: ADernild
 Email: alex@dernild.dk
 Project: RORClient
 Description: Configuration class for the RORClient package.
-Date: 2025-02-17
 """
 
 from pydantic import BaseModel, Field, HttpUrl, PositiveInt

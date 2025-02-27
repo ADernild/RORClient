@@ -7,7 +7,6 @@ Author: ADernild
 Email: alex@dernild.dk
 Project: RORClient
 Description: Utility functions for the RORClient package.
-Date: 2025-02-17
 """
 
 import logging

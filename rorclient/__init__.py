@@ -7,5 +7,9 @@ Author: ADernild
 Email: alex@dernild.dk
 Project: RORClient
 Description: Initialization file for the RORClient package.
-Date: 2025-02-17
 """
+
+from .async_client import AsyncRORClient
+from .client import RORClient
+
+__all__ = ["RORClient", "AsyncRORClient"]
