@@ -22,10 +22,10 @@ __all__ = [
     "AdminCreated",
     "AdminLastModified",
     "ExternalId",
+    "GeonamesDetails",
+    "Institution",
     "Link",
     "Location",
-    "GeonamesDetails",
     "Name",
     "Relationship",
-    "Institution",
 ]
