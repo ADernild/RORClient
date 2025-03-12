@@ -8,7 +8,8 @@ Prefetching Relationships
 
 The `prefetch_relationships` flag allows you to automatically fetch related data when making API calls. When set to `True`, the client will retrieve additional information about institutions, such as their relationships with other organizations, affiliations, and more. This means that if an institution has related institutions, those related institutions' records will be fetched and nested within the main institution's record.
 
-### Example
+Example
+^^^^^^^
 
 Consider an institution with ROR ID "04x81pg59" that has a relationship with another institution with ROR ID "03y42pg52". When `prefetch_relationships` is set to `True`, the client will fetch and nest the related institution's record within the main institution's record.
 
@@ -28,7 +29,8 @@ Max Depth
 
 The `max_depth` parameter controls the depth of nested relationships that are fetched when using the `prefetch_relationships` flag. A higher `max_depth` value allows the client to retrieve more levels of related data, but it may also increase the response time and data size.
 
-### Example
+Example
+^^^^^^^
 
 Consider an institution with ROR ID "04x81pg59" that has a relationship with another institution with ROR ID "03y42pg52", which in turn has a relationship with yet another institution with ROR ID "02z53pg53". By default, `max_depth` is set to 2. This means the client will fetch up to two levels of related data.
 
