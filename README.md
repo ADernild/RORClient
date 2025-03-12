@@ -33,7 +33,7 @@ RORClient provides a simple, efficient way to query the [Research Organization R
 ```sh
 git clone https://github.com/ADernild/rorclient.git
 cd rorclient
-pip install -r requirements.txt
+uv sync
 ```
 ---
 
@@ -94,7 +94,7 @@ if org:
     print(org.location.country)  # Country of the institution
 ```
 
-For a full list of available fields, see the [models.py](rorclient/models/institution.py) file.
+For a full list of available fields, see the [institution.py](rorclient/models/institution.py) file.
 You can also have a look at the [ROR API documentation](https://ror.readme.io/v2/docs/data-structure)
 
 ---
@@ -104,7 +104,7 @@ You can also have a look at the [ROR API documentation](https://ror.readme.io/v2
 To run the test suite, run:
 
 ```sh
-python -m unittest discover
+uv run pytest
 ```
 
 ---
