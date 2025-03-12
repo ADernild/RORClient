@@ -7,7 +7,7 @@
 [![Akami Cloud Computing](https://img.shields.io/badge/Cloud_Hosting-s?style=flat-round&logo=akamai&logoColor=%230096D6&labelColor=white&color=white)](https://www.linode.com/lp/refer/?r=a1236b8e74912ccb090628165fa6bf21cb52968f "Get a $100 credit on Linode Cloud")
 [![Pydantic v2](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pydantic/pydantic/main/docs/badge/v2.json)](https://pydantic.dev)
 [![httpx](https://img.shields.io/badge/httpx-%5E0.28.1-orange)](https://www.python-httpx.org/)
-[![Python versions](https://img.shields.io/pypi/pyversions/httpx)](https://www.python.org/downloads/)
+[![Python versions](https://img.shields.io/pypi/pyversions/rorclient)](https://www.python.org/downloads/)
 [![Passed tests](https://github.com/ADernild/RORClient/actions/workflows/tests.yml/badge.svg)](https://github.com/ADernild/RORClient/actions/workflows/tests.yml)
 
 🚀 **A Python client for interacting with the ROR API.**
