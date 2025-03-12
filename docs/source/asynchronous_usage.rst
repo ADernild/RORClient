@@ -8,7 +8,8 @@ Initializing the Asynchronous Client
 
 To initialize the asynchronous client, you can use either of the following methods:
 
-### Method 1: Using `async with`
+Method 1: Using `async with`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Using the `async with` statement ensures proper resource management and context handling by automatically closing the client when done:
 
@@ -30,7 +31,8 @@ Using the `async with` statement ensures proper resource management and context 
 
    asyncio.run(main())
 
-### Method 2: Direct Initialization
+Method 2: Direct Initialization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can also initialize the client directly and manually close it when done:
 
