@@ -28,13 +28,11 @@ RORClient provides a simple, efficient way to query the [Research Organization R
 ---
 
 ## ⚡ Installation
-> ⚠ **Work in Progress**: RORClient is not yet available via PyPI.
-> Clone the repository and install dependencies manually:
+
+You can easily install rorclient using pip:
 
 ```sh
-git clone https://github.com/ADernild/rorclient.git
-cd rorclient
-uv sync
+pip install rorclient
 ```
 ---
 
