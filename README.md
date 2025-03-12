@@ -8,6 +8,7 @@
 [![Pydantic v2](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pydantic/pydantic/main/docs/badge/v2.json)](https://pydantic.dev)
 [![httpx](https://img.shields.io/badge/httpx-%5E0.28.1-orange)](https://www.python-httpx.org/)
 [![Python versions](https://img.shields.io/pypi/pyversions/httpx)](https://www.python.org/downloads/)
+[![Passed tests](https://github.com/ADernild/RORClient/actions/workflows/tests.yml/badge.svg)](https://github.com/ADernild/RORClient/actions/workflows/tests.yml)
 
 🚀 **A Python client for interacting with the ROR API.**
 RORClient provides a simple, efficient way to query the [Research Organization Registry (ROR)](https://ror.org) API using **HTTPX** and **Pydantic**.
