@@ -42,5 +42,5 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build . --file Dockerfile --tag adernild/rorclient-docs:latest
+          docker build ./docs --file ./docs/Dockerfile --tag adernild/rorclient-docs:latest
           docker push adernild/rorclient-docs:latest
