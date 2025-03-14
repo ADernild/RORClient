@@ -11,6 +11,7 @@ Description: Synchronous client for interacting with the ROR API.
 
 import logging
 from typing import ClassVar, List, Optional
+from urllib.parse import quote_plus
 
 import backoff
 import httpx
@@ -19,6 +20,7 @@ from pydantic import BaseModel, PrivateAttr
 from rorclient.base import BaseRORClient
 from rorclient.config import config
 from rorclient.models import Institution
+from rorclient.models.search import SearchResult
 from rorclient.utils import retry_with_backoff
 
 logger = logging.getLogger(__name__)
@@ -101,6 +103,36 @@ class RORClient(BaseRORClient):
                 institutions.append(institution)
 
         return institutions
+
+    def search(self, search_term: str, advanced_search: bool = False):
+        """
+        Searches the ROR API with a search_term.
+
+        Args:
+            search_term (str): A search term
+            advanced_search (bool): Toggling the "query.advanced" parameter.
+
+        Returns:
+            SearchResult: A search result object
+
+        Raises:
+            ValueError: If status code isn't 200 or 404
+        """
+        logger.debug(f"Searching the ROR API with search term {search_term}")
+
+        query_type = "query.advanced" if advanced_search else "query"
+
+        response = self._client.get(
+            f"organizations?{query_type}={quote_plus(search_term)}"
+        )
+
+        if response.status_code == 200:
+            search_results = response.json()
+            return SearchResult(**search_results)
+        elif response.status_code == 404:
+            return None
+        else:
+            raise ValueError(f"Got {response.status_code} from ROR")
 
     def close(self):
         """Closes the HTTPX client."""

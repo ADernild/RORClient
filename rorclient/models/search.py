@@ -11,8 +11,9 @@ Description: Pydantic models for search in the ROR API.
 
 from typing import List
 
-from institution import Institution
 from pydantic import BaseModel
+
+from .institution import Institution
 
 
 class Container(BaseModel):
